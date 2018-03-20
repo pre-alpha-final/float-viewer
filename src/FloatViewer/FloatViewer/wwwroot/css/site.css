@@ -1,5 +1,5 @@
 body {
-	padding-top: 50px;
+	padding-top: 20px;
 	padding-bottom: 20px;
 	color: #fff;
 	background-color: #111;
@@ -8,6 +8,10 @@ body {
 ul {
 	list-style-type: none;
 	padding: 0;
+}
+
+.thumbnail {
+	padding: 20px;
 }
 
 .thumbnail p {
