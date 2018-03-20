@@ -1,35 +1,64 @@
 body {
-    padding-top: 50px;
-    padding-bottom: 20px;
+	padding-top: 50px;
+	padding-bottom: 20px;
+	color: #fff;
+	background-color: #111;
 }
 
-/* Wrapping element */
-/* Set some basic padding to keep content from hitting the edges */
+ul {
+	list-style-type: none;
+	padding: 0;
+}
+
+.thumbnail p {
+	margin-top: 0;
+	color: #555;
+}
+
+.thumbnail .image {
+	height: 200px;
+}
+
+.thumbnail .title {
+	margin-top: 15px;
+	font-size: 22px;
+}
+
+.btn {
+	padding: 10px 20px;
+	background-color: #333;
+	color: #f1f1f1;
+	border-radius: 0;
+	transition: .2s;
+}
+
+	.btn:hover, .btn:focus {
+		border: 1px solid #333;
+		background-color: #fff;
+		color: #000;
+	}
+
 .body-content {
-    padding-left: 15px;
-    padding-right: 15px;
+	padding-left: 15px;
+	padding-right: 15px;
 }
 
-/* Carousel */
-.carousel-caption p {
-    font-size: 20px;
-    line-height: 1.4;
+.list-item:nth-child(-n+3) {
+	margin-top: 30px;
 }
 
-/* Make .svg files in the carousel display properly in older browsers */
-.carousel-inner .item img[src$=".svg"] {
-    width: 100%;
+.list-group-item {
+	background-color: #555;
+	color: #f1f1f1;
 }
 
-/* QR code generator */
-#qrCode {
-    margin: 15px;
-}
-
-/* Hide/rearrange for smaller screens */
 @media screen and (max-width: 767px) {
-    /* Hide captions */
-    .carousel-caption {
-        display: none;
-    }
+}
+
+@media only screen and (min-width:1230px) {
+	.list-item {
+		width: calc(33.33333% - 40px);
+		float: left;
+		margin-left: 30px;
+	}
 }

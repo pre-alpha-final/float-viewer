@@ -1,1 +1,47 @@
-﻿
+﻿@page
+@model IndexModel
+
+<div class="row">
+	<form method="post">
+		<div class="input-group">
+			@Html.TextBoxFor(m => m.AuthenticationToken, new { @class = "form-control", @placeholder = "Authentication token", @requried = "required" })
+			<button class="btn button-spacing" asp-page-handler="Update">Update</button>
+		</div>
+	</form>
+</div>
+
+@if (Model.HasProjects)
+{
+	<div class="row text-center">
+		<ul class="list-items">
+			@foreach (var project in Model.Projects)
+			{
+				<li class="list-item">
+					<div class="thumbnail">
+						<div class="title"><p><strong>@Html.Raw(Model.JsonParse(project.ContentJson).SelectToken("$.name"))</strong></p></div>
+						@foreach (var person in project.Persons)
+						{
+							<p>@Html.Raw(Model.JsonParse(person.ContentJson).SelectToken("$.name"))</p>
+						}
+					</div>
+				</li>
+			}
+		</ul>
+	</div>
+}
+else
+{
+	<br />
+	<h4>No data</h4>
+	<br />
+}
+
+@section Scripts {
+	<script type="text/javascript" language="JavaScript">
+
+		$('ul').masonry({
+			itemSelector: '.list-item'
+		});
+
+	</script>
+}
