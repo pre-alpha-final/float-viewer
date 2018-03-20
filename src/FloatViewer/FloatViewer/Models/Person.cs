@@ -1,7 +1,6 @@
 ﻿namespace FloatViewer.Models
 {
-	public class Person
+	public class Person : JsonContainer
 	{
-		public string ContentJson { get; set; }
 	}
 }

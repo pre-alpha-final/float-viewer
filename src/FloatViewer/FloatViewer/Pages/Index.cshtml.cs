@@ -16,7 +16,7 @@ namespace FloatViewer.Pages
 		public bool HasProjects => Projects?.Count > 0;
 
 		[BindProperty]
-		public string AuthenticationToken { get; set; }
+		public string AccessToken { get; set; }
 
 		public IndexModel(IFloatService floatService)
 		{
@@ -30,6 +30,8 @@ namespace FloatViewer.Pages
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> OnPostUpdateAsync()
 		{
+			Projects = await _floatService.GetProjectsAsync(AccessToken);
+
 			return RedirectToPage();
 		}
 

@@ -4,7 +4,7 @@
 <div class="row">
 	<form method="post">
 		<div class="input-group">
-			@Html.TextBoxFor(m => m.AuthenticationToken, new { @class = "form-control", @placeholder = "Authentication token", @requried = "required" })
+			@Html.TextBoxFor(m => m.AccessToken, new { @class = "form-control", @placeholder = "Authentication token", @requried = "required" })
 			<button class="btn button-spacing" asp-page-handler="Update">Update</button>
 		</div>
 	</form>
