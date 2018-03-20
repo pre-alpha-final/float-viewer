@@ -19,7 +19,9 @@ namespace FloatViewer.Services.Implementation
 
 		public async Task<IList<Project>> GetProjectsAsync(string login, string password)
 		{
-			await LogIn(login, password);
+			var result = await LogIn(login, password);
+			if (result.Contains("Incorrect email or password"))
+				throw new ArgumentException("Wrong login credentials");
 
 			Persons = await ExtractData<Person>("https://login.float.com/api/f1/people", "$.people");
 			Projects = await ExtractData<Project>("https://login.float.com/api/f1/projects", "$.projects");

@@ -6,6 +6,8 @@ using FloatViewer.Models;
 using FloatViewer.Services;
 using Newtonsoft.Json.Linq;
 using System.ComponentModel.DataAnnotations;
+using System;
+using System.Diagnostics;
 
 namespace FloatViewer.Pages
 {
@@ -31,15 +33,25 @@ namespace FloatViewer.Pages
 			_floatService = floatService;
 		}
 
-		public async Task OnGetAsync()
+		public Task OnGetAsync()
 		{
 			Projects = _floatService.Projects;
+
+			return Task.CompletedTask;
 		}
 
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> OnPostAsync()
 		{
-			Projects = await _floatService.GetProjectsAsync(Email, Password);
+			try
+			{
+				Projects = await _floatService.GetProjectsAsync(Email, Password);
+			}
+			catch (ArgumentException e)
+			{
+				Debug.WriteLine(e.Message);
+				return Unauthorized();
+			}
 
 			return RedirectToPage();
 		}
