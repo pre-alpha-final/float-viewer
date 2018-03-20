@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
+using System.Collections.Specialized;
+using System.Linq;
 using System.Threading.Tasks;
+using FloatViewer.Components;
+using FloatViewer.Extensions;
 using FloatViewer.Models;
 using Newtonsoft.Json.Linq;
 
@@ -9,55 +12,52 @@ namespace FloatViewer.Services.Implementation
 {
 	public class FlaotService : IFloatService
 	{
+		private readonly CookieAwareWebClient _cookieAwareWebClient = new CookieAwareWebClient();
+
 		public IList<Person> Persons { get; set; } = new List<Person>();
 		public IList<Project> Projects { get; set; } = new List<Project>();
 
-		public async Task<IList<Project>> GetProjectsAsync(string accessToken)
+		public async Task<IList<Project>> GetProjectsAsync(string login, string password)
 		{
-			Persons = await GetFromApiAsync<Person>("https://api.float.com/v3/people?project_id=1428797", accessToken);
-			Projects = await GetFromApiAsync<Project>("https://api.float.com/v3/projects", accessToken);
+			await LogIn(login, password);
+
+			Persons = await ExtractData<Person>("https://login.float.com/api/f1/people", "$.people");
+			Projects = await ExtractData<Project>("https://login.float.com/api/f1/projects", "$.projects");
+
+			foreach (var project in Projects)
+			{
+				var projectId = JToken.Parse(project.ContentJson).SelectToken("$.project_id");
+				project.Persons = Persons
+					.Where(e => JToken.Parse(e.ContentJson).SelectTokens("$.project_ids[*]").Contains($"{projectId}")).ToList();
+			}
 
 			return Projects;
 		}
 
-		private async Task<IList<T>> GetFromApiAsync<T>(string url, string accessToken) where T : JsonContainer, new()
+		private Task<string> LogIn(string userName, string password)
 		{
-			var content = await GetContent(url, accessToken);
+			return _cookieAwareWebClient.Post("https://login.float.com/login", new NameValueCollection
+				{
+					{ "LoginForm[email]", userName },
+					{ "LoginForm[password]", password },
+					{ "yt0", "Sign in" }
+				});
+		}
 
+		private async Task<IList<T>> ExtractData<T>(string url, string selector) where T : JsonContainer, new()
+		{
 			var list = new List<T>();
+
+			var content = await _cookieAwareWebClient.Get(url);
 			if (string.IsNullOrWhiteSpace(content) == false)
 			{
-				foreach (var token in JToken.Parse(content).SelectTokens("$").Children())
+				foreach (var token in JToken.Parse(content).SelectTokens(selector).Children())
 				{
 					list.Add(new T { ContentJson = $"{token}" });
 				}
 			}
 
 			return list;
-		}
-
-		private Task<string> GetContent(string url, string accessToken)
-		{
-			try
-			{
-				using (var client = new WebClient())
-				{
-					client.Headers["User-Agent"] =
-						"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0";
-					client.Headers["Authorization"] =
-						$"Bearer {accessToken}";
-
-					var result = client.DownloadString(new Uri(url));
-
-					return Task.FromResult(result);
-				}
-			}
-			catch (Exception e)
-			{
-				// ignore
-			}
-
-			return null;
 		}
 	}
 }

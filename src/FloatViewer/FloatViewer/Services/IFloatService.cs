@@ -6,6 +6,9 @@ namespace FloatViewer.Services
 {
 	public interface IFloatService
 	{
-		Task<IList<Project>> GetProjectsAsync(string accessToken);
+		IList<Person> Persons { get; set; }
+		IList<Project> Projects { get; set; }
+
+		Task<IList<Project>> GetProjectsAsync(string login, string password);
 	}
 }
