@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
-using FloatViewer.Components;
+using FloatViewer.Controls;
 using FloatViewer.Extensions;
 using FloatViewer.Models;
 using Newtonsoft.Json.Linq;
 
 namespace FloatViewer.Services.Implementation
 {
-	public class FlaotService : IFloatService
+	public class FloatService : IFloatService
 	{
 		private readonly CookieAwareWebClient _cookieAwareWebClient = new CookieAwareWebClient();
 
@@ -53,10 +53,10 @@ namespace FloatViewer.Services.Implementation
 			var content = await _cookieAwareWebClient.Get(url);
 			if (string.IsNullOrWhiteSpace(content) == false)
 			{
-				foreach (var token in JToken.Parse(content).SelectTokens(selector).Children())
-				{
-					list.Add(new T { ContentJson = $"{token}" });
-				}
+				list.AddRange(JToken.Parse(content)
+					.SelectTokens(selector)
+					.Children()
+					.Select(token => new T {ContentJson = $"{token}"}));
 			}
 
 			return list;
