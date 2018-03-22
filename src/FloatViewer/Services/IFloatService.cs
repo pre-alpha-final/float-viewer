@@ -9,6 +9,8 @@ namespace FloatViewer.Services
 		IList<Person> Persons { get; set; }
 		IList<Project> Projects { get; set; }
 
-		Task<IList<Project>> GetProjectsAsync(string login, string password);
+		Task<bool> IsLoginRequiredAsync();
+		Task LogInAsync(string email, string password);
+		Task<IList<Project>> GetProjectsAsync();
 	}
 }

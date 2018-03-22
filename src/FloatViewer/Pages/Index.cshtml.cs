@@ -33,11 +33,16 @@ namespace FloatViewer.Pages
 			_floatService = floatService;
 		}
 
-		public Task OnGetAsync()
+		public async Task OnGetAsync()
 		{
-			Projects = _floatService.Projects;
-
-			return Task.CompletedTask;
+			if (await _floatService.IsLoginRequiredAsync())
+			{
+				Projects = new List<Project>();
+			}
+			else
+			{
+				Projects = await _floatService.GetProjectsAsync();
+			}
 		}
 
 		[ValidateAntiForgeryToken]
@@ -45,7 +50,7 @@ namespace FloatViewer.Pages
 		{
 			try
 			{
-				Projects = await _floatService.GetProjectsAsync(Email, Password);
+				await _floatService.LogInAsync(Email, Password);
 			}
 			catch (ArgumentException e)
 			{

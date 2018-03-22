@@ -17,12 +17,28 @@ namespace FloatViewer.Services.Implementation
 		public IList<Person> Persons { get; set; } = new List<Person>();
 		public IList<Project> Projects { get; set; } = new List<Project>();
 
-		public async Task<IList<Project>> GetProjectsAsync(string login, string password)
+		public async Task<bool> IsLoginRequiredAsync()
 		{
-			var result = await LogIn(login, password);
+			var result = await _cookieAwareWebClient.Get("https://login.float.com");
+
+			return result.Contains(" Login Site ");
+		}
+
+		public async Task LogInAsync(string email, string password)
+		{
+			var result = await _cookieAwareWebClient.Post("https://login.float.com/login", new NameValueCollection
+			{
+				{ "LoginForm[email]", email },
+				{ "LoginForm[password]", password },
+				{ "yt0", "Sign in" }
+			});
+
 			if (result.Contains("Incorrect email or password"))
 				throw new ArgumentException("Wrong login credentials");
+		}
 
+		public async Task<IList<Project>> GetProjectsAsync()
+		{
 			Persons = await ExtractData<Person>("https://login.float.com/api/f1/people", "$.people");
 			Projects = await ExtractData<Project>("https://login.float.com/api/f1/projects", "$.projects");
 
@@ -34,16 +50,6 @@ namespace FloatViewer.Services.Implementation
 			}
 
 			return Projects;
-		}
-
-		private Task<string> LogIn(string userName, string password)
-		{
-			return _cookieAwareWebClient.Post("https://login.float.com/login", new NameValueCollection
-				{
-					{ "LoginForm[email]", userName },
-					{ "LoginForm[password]", password },
-					{ "yt0", "Sign in" }
-				});
 		}
 
 		private async Task<IList<T>> ExtractData<T>(string url, string selector) where T : JsonContainer, new()
