@@ -6,27 +6,26 @@ using System.Threading.Tasks;
 using FloatViewer.Controls;
 using FloatViewer.Extensions;
 using FloatViewer.Models;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json.Linq;
 
 namespace FloatViewer.Services.Implementation
 {
 	public class FloatService : IFloatService
 	{
-		private readonly CookieAwareWebClient _cookieAwareWebClient = new CookieAwareWebClient();
-
 		public IList<Person> Persons { get; set; } = new List<Person>();
 		public IList<Project> Projects { get; set; } = new List<Project>();
 
-		public async Task<bool> IsLoginRequiredAsync()
+		public async Task<bool> IsLoginRequiredAsync(ISession session)
 		{
-			var result = await _cookieAwareWebClient.Get("https://login.float.com");
+			var result = await new SessionAwareWebClient(session).Get("https://login.float.com");
 
 			return result.Contains(" Login Site ");
 		}
 
-		public async Task LogInAsync(string email, string password)
+		public async Task LogInAsync(ISession session, string email, string password)
 		{
-			var result = await _cookieAwareWebClient.Post("https://login.float.com/login", new NameValueCollection
+			var result = await new SessionAwareWebClient(session).Post("https://login.float.com/login", new NameValueCollection
 			{
 				{ "LoginForm[email]", email },
 				{ "LoginForm[password]", password },
@@ -37,10 +36,10 @@ namespace FloatViewer.Services.Implementation
 				throw new ArgumentException("Wrong login credentials");
 		}
 
-		public async Task<IList<Project>> GetProjectsAsync()
+		public async Task<IList<Project>> GetProjectsAsync(ISession session)
 		{
-			Persons = await ExtractData<Person>("https://login.float.com/api/f1/people", "$.people");
-			Projects = await ExtractData<Project>("https://login.float.com/api/f1/projects", "$.projects");
+			Persons = await ExtractData<Person>(session, "https://login.float.com/api/f1/people", "$.people");
+			Projects = await ExtractData<Project>(session, "https://login.float.com/api/f1/projects", "$.projects");
 
 			foreach (var project in Projects)
 			{
@@ -52,11 +51,11 @@ namespace FloatViewer.Services.Implementation
 			return Projects;
 		}
 
-		private async Task<IList<T>> ExtractData<T>(string url, string selector) where T : JsonContainer, new()
+		private async Task<IList<T>> ExtractData<T>(ISession session, string url, string selector) where T : JsonContainer, new()
 		{
 			var list = new List<T>();
 
-			var content = await _cookieAwareWebClient.Get(url);
+			var content = await new SessionAwareWebClient(session).Get(url);
 			if (string.IsNullOrWhiteSpace(content) == false)
 			{
 				list.AddRange(JToken.Parse(content)

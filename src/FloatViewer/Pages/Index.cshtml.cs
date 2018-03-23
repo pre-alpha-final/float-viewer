@@ -35,13 +35,13 @@ namespace FloatViewer.Pages
 
 		public async Task OnGetAsync()
 		{
-			if (await _floatService.IsLoginRequiredAsync())
+			if (await _floatService.IsLoginRequiredAsync(HttpContext.Session))
 			{
 				Projects = new List<Project>();
 			}
 			else
 			{
-				Projects = await _floatService.GetProjectsAsync();
+				Projects = await _floatService.GetProjectsAsync(HttpContext.Session);
 			}
 		}
 
@@ -50,7 +50,7 @@ namespace FloatViewer.Pages
 		{
 			try
 			{
-				await _floatService.LogInAsync(Email, Password);
+				await _floatService.LogInAsync(HttpContext.Session, Email, Password);
 			}
 			catch (ArgumentException e)
 			{

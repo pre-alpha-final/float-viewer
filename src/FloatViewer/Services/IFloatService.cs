@@ -1,6 +1,7 @@
 ﻿using FloatViewer.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace FloatViewer.Services
 {
@@ -9,8 +10,8 @@ namespace FloatViewer.Services
 		IList<Person> Persons { get; set; }
 		IList<Project> Projects { get; set; }
 
-		Task<bool> IsLoginRequiredAsync();
-		Task LogInAsync(string email, string password);
-		Task<IList<Project>> GetProjectsAsync();
+		Task<bool> IsLoginRequiredAsync(ISession session);
+		Task LogInAsync(ISession session, string email, string password);
+		Task<IList<Project>> GetProjectsAsync(ISession session);
 	}
 }
